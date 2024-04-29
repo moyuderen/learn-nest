@@ -87,7 +87,9 @@ export class AppController {
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
+          // 校验文件最大为5000k
           new MaxFileSizeValidator({ maxSize: 5000 }),
+          // 只能上传.jpg文件格式
           new FileTypeValidator({ fileType: 'image/jpg' }),
         ],
       }),
