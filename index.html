@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload</title>
+    <script src="https://unpkg.com/axios@0.24.0/dist/axios.min.js"></script>
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 30px 0;
+        border: 1px solid slategrey;
+        padding: 20px;
+        border-radius: 4px;
+      }
+      .label {
+        cursor: pointer;
+      }
+      .input {
+        display: none;
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <label for="fileInput" class="label">单文件上传</label>
+      <input id="fileInput" type="file" multiple  class="input"/>
+    </div>
+
+    <div class="container">
+      <label for="fileInput1" class="label">多文件上传</label>
+      <input id="fileInput1" type="file" multiple  class="input"/>
+    </div>
+
+    <div class="container">
+      <label for="fileInput2" class="label">多文件 多字段 上传 & AnyFilesInterceptor</label>
+      <input id="fileInput2" type="file" multiple  class="input"/>
+    </div>
+    
+    <script>
+      // 单文件
+      const fileInput = document.querySelector('#fileInput');
+      fileInput.onchange = upload;
+
+      async function upload() {
+          const data = new FormData();
+          data.set('name','han meimei');
+          data.set('age', 20);
+          // file 接收文件的参数名称
+          data.set('file', fileInput.files[0]);
+          await axios.post('http://localhost:3000/upload', data);
+          e.target.value = null
+      }
+
+      // 多文件
+      const fileInput1 = document.querySelector('#fileInput1');
+      fileInput1.onchange = upload1;
+
+      async function upload1(e) {
+          const data = new FormData();
+          data.set('name','han meimei');
+          data.set('age', 20);
+          // files： 文件参数名称
+          [...e.target.files].map(item => {
+            data.append('files',item);
+          })
+          await axios.post('http://localhost:3000/uploads', data);
+          e.target.value = null
+      }
+
+      // 多文件 多字段
+      const fileInput2 = document.querySelector('#fileInput2');
+      fileInput2.onchange = upload2;
+
+      async function upload2(e) {
+          const data = new FormData();
+          data.set('name','han meimei');
+          data.set('age', 20);
+          [...e.target.files].map(item => {
+            // 参数名 aaa
+            data.append('aaa',item);
+          });
+          [...e.target.files].map(item => {
+            // 参数名 bbb
+            data.append('bbb',item);
+          })
+          await axios.post('http://localhost:3000/anyUploads', data);
+          e.target.value = null
+      }
+    </script>
+</body>
+</html>
