@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+  <title>分片上传</title>
+  <script src="https://unpkg.com/axios@0.24.0/dist/axios.min.js"></script>
+</head>
+<body>
+  <input type="file" multiple id="fileInput">
+  
+  <script type="module">
+    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+    const fileInput = document.querySelector('#fileInput')
+    fileInput.onchange = upload
+
+    async function upload(e) {
+      const file = e.target.files[0]
+      // 分片
+      const chunkSize = 2000
+      const chunks = [];
+      let startPos = 0;
+      while(startPos < file.size) {
+          chunks.push(file.slice(startPos, startPos + chunkSize));
+          startPos += chunkSize;
+      }
+      // 每个文件唯一id 避免文件冲突
+      const uuid = uuidv4()
+      const tasks = chunks.map((chunk, index) => {
+        const data = new FormData()
+        data.set('uuid', uuid)
+        data.set('filename', file.name)
+        data.set('index', index)
+        data.set('chunk', chunk)
+        return axios.post('http://localhost:3000/upload', data)
+      })
+      // 分片上传
+      const [res] = await Promise.all(tasks)
+      // res.data = { uuid, filename }
+      // 所有文件上传完成后调用merge接口合并文件
+      await axios.post('http://localhost:3000/merge', res.data)
+      fileInput.value = null
+    }
+  </script>
+</body>
